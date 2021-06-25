@@ -5,9 +5,9 @@ public class Rennen {
 	String name;
 	int teilnehmerzahl;
 	ArrayList<Rennschnecke> Schnecken;
-	
-	//new ArrayList<Rennschnecke>();
-	
+
+	// new ArrayList<Rennschnecke>();
+
 	double streckenlaenge;
 
 	public Rennen(String name, double streckenlaenge) {
@@ -18,7 +18,14 @@ public class Rennen {
 	}
 
 	public void addRennschnecke(Rennschnecke neueSchnecke) {
-		this.Schnecken.add(neueSchnecke);
+
+		if (this.Schnecken.contains(neueSchnecke)) {
+			System.out.println("This snail is alredy at this race!");
+		}
+
+		else {
+			this.Schnecken.add(neueSchnecke);
+		}
 	}
 
 	public void removeRennschnecke(String name) {
@@ -29,26 +36,40 @@ public class Rennen {
 		}
 
 	}
-	
-public String toString() {
+
+	public void lasseSchneckenKriechen() {
+		for (Rennschnecke schnecke : Schnecken) {
+			schnecke.kriechen();
+		}
+	}
+
+	public String ermittleGewinner() {
+		for (Rennschnecke schnecke : Schnecken) {
+			if (schnecke.strecke >= this.streckenlaenge) {
+				return ""+schnecke.name +": "+ schnecke.strecke;
+			}
+
+		}
+		return null;
+	}
+
+	public void durchfuehren() {
+		while (this.ermittleGewinner() == null) {
+			this.lasseSchneckenKriechen();
+		}
+		
+
+	}
+
+	public String toString() {
 		String Schneckenstring = " ";
-	for (Rennschnecke schnecke : Schnecken) {
-	    Schneckenstring = Schneckenstring + schnecke.toString();
-	    }
-		return "Name: "+name+", Streckenlänge: "+streckenlaenge+", Teilnehmerzahl: "+teilnehmerzahl+" Teilnehmer:"+Schneckenstring;
+		for (Rennschnecke schnecke : Schnecken) {
+			Schneckenstring = Schneckenstring + schnecke.toString();
+		}
+		return "Name: " + name + ", Streckenlänge: " + streckenlaenge + ", Teilnehmerzahl: " + teilnehmerzahl
+				+ " Teilnehmer:" + Schneckenstring;
 	}
 
-	public static void main(String[] args) {
-		Rennschnecke Alfred = new Rennschnecke("Alfred", "Weinschnecke", 1.6);
-		Rennschnecke Barbara = new Rennschnecke("Barbara", "Seeschnecke", 2.1);
-		Rennen Schillerrace = new Rennen("Schillerrace", 7);
-		Schillerrace.addRennschnecke(Alfred);
-		Schillerrace.addRennschnecke(Barbara);
-		System.out.println(Schillerrace);
-
-		//System.out.println(Alfred);
-		Alfred.kriechen();
-		System.out.println(Alfred);
-	}
+	
 
 }
