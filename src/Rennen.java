@@ -62,27 +62,26 @@ public class Rennen {
     /**
      * Meldet eine Schnecke nach Namen ab.
      *
-     * <p><b>Achtung:</b> Diese Implementierung kann eine
-     * {@link java.util.ConcurrentModificationException} auslösen, weil die Liste
-     * während der Iteration verändert wird. Korrekte Variante: Iterator verwenden
-     * oder nach dem Finden des Elements mit {@code break} abbrechen.</p>
-     *
-     * <p>Korrekte Alternative:
-     * <pre>
-     *   Iterator&lt;Rennschnecke&gt; it = Schnecken.iterator();
-     *   while (it.hasNext()) {
-     *       if (it.next().name.equals(name)) { it.remove(); break; }
-     *   }
-     * </pre></p>
+     * <p><b>Didaktik:</b> Eine frühere Version dieser Methode hat die Liste
+     * per {@code for-each} durchlaufen und beim Treffer {@code Schnecken.remove(...)}
+     * aufgerufen. Das führt zu einer {@link java.util.ConcurrentModificationException},
+     * weil der for-each-Iterator erkennt, dass sich die Liste unter ihm
+     * verändert hat. Die korrekte Lösung ist ein <b>expliziter Iterator</b>
+     * mit der Methode {@link Iterator#remove()} – er weiß, dass er selbst
+     * modifizieren darf.</p>
      *
      * @param name Rufname der abzumeldenden Schnecke
+     * @return {@code true}, wenn eine Schnecke gefunden und entfernt wurde
      */
-    public void removeRennschnecke(String name) {
-        for (Rennschnecke schnecke : Schnecken) {
-            if (schnecke.name.equals(name)) {
-                Schnecken.remove(schnecke);   // TODO: ConcurrentModificationException möglich!
+    public boolean removeRennschnecke(String name) {
+        Iterator<Rennschnecke> it = Schnecken.iterator();
+        while (it.hasNext()) {
+            if (it.next().name.equals(name)) {
+                it.remove();
+                return true;
             }
         }
+        return false;
     }
 
     /**
@@ -96,23 +95,33 @@ public class Rennen {
     }
 
     /**
-     * Gibt den Namen und die Strecke der ersten Schnecke zurück, die die
-     * Ziellinie erreicht oder überschritten hat.
+     * Gibt die erste Schnecke zurück, die die Ziellinie erreicht oder
+     * überschritten hat – oder {@code null}, wenn das Rennen noch läuft.
      *
-     * <p>Gibt {@code null} zurück, solange noch keine Schnecke angekommen ist.
-     * Diese Methode wird von {@link #durchfuehren()} als Schleifenabbruchbedingung
-     * verwendet.</p>
+     * <p>Diese Methode wird von {@link #durchfuehren()} als Schleifen­abbruch­bedingung
+     * verwendet und vom {@link Wettbuero} zur Gewinn­auszahlung.</p>
      *
-     * @return Siegerbeschreibung oder {@code null}
+     * @return die Sieger-Schnecke oder {@code null}
      */
-    public String ermittleGewinner() {
+    public Rennschnecke ermittleGewinnerSchnecke() {
         for (Rennschnecke schnecke : Schnecken) {
             if (schnecke.strecke >= this.streckenlaenge) {
-                return schnecke.name + ": " + String.format("%.2f", schnecke.strecke)
-                     + " (Ziel: " + streckenlaenge + ")";
+                return schnecke;
             }
         }
-        return null;    // noch kein Gewinner
+        return null;
+    }
+
+    /**
+     * Formatiert die Gewinner­schnecke als String (für Konsolenausgabe).
+     *
+     * @return Siegerbeschreibung oder {@code null} wenn noch kein Gewinner feststeht
+     */
+    public String ermittleGewinner() {
+        Rennschnecke sieger = ermittleGewinnerSchnecke();
+        if (sieger == null) return null;
+        return sieger.name + ": " + String.format("%.2f", sieger.strecke)
+             + " (Ziel: " + streckenlaenge + ")";
     }
 
     /**

@@ -1,15 +1,21 @@
 import java.util.ArrayList;
 
 /**
- * Verwaltet Wetten zu einem Rennen und führt das Rennen im Auftrag der Wettenden durch.
+ * Verwaltet Wetten zu einem Rennen und führt das Rennen im Auftrag der
+ * Wettenden durch.
  *
  * <p>Das Wettbüro hält eine Liste von {@link Wette}-Objekten und eine Referenz
- * auf das zugehörige {@link Rennen}. Es demonstriert Assoziation: Das Wettbüro
- * <em>hat ein</em> Rennen ({@code rennen}-Attribut), aber ist nicht selbst ein Rennen.</p>
+ * auf das zugehörige {@link Rennen}. Es demonstriert <b>Assoziation</b>: Das
+ * Wettbüro <em>hat ein</em> Rennen ({@code rennen}-Attribut), ist aber nicht
+ * selbst ein Rennen – das Prinzip „Komposition statt Vererbung".</p>
  *
- * <p><b>TODO:</b> Die Gewinn-Ausschüttung nach dem Rennen ist noch nicht implementiert.
- * Erweiterungsidee: Prüfe für jede Wette, ob die gewettete Schnecke gewonnen hat,
- * und berechne die Auszahlung als {@code wettEinsatz × faktor}.</p>
+ * <h2>Ablauf einer Wett-Session</h2>
+ * <ol>
+ *   <li>Wettbüro erzeugen: {@code new Wettbuero(rennen)}</li>
+ *   <li>Wetten annehmen: {@code Wetten.add(new Wette(...))}</li>
+ *   <li>Rennen durchführen: {@link #rennenDurchfuehren()}</li>
+ *   <li>Gewinne auszahlen: {@link #zahleGewinneAus()}</li>
+ * </ol>
  *
  * @author hibbes
  * @see Rennen
@@ -17,10 +23,7 @@ import java.util.ArrayList;
  */
 public class Wettbuero {
 
-    /**
-     * Gewinnfaktor: Gewinnerquote = Einsatz × faktor.
-     * Aktuell noch nicht in der Auszahlungslogik genutzt.
-     */
+    /** Gewinnfaktor: Auszahlung = Einsatz × faktor. */
     double faktor = 3;
 
     /** Das Rennen, das dieses Wettbüro begleitet. */
@@ -48,6 +51,40 @@ public class Wettbuero {
      */
     public void rennenDurchfuehren() {
         rennen.durchfuehren();
+    }
+
+    /**
+     * Zahlt die Gewinne an alle Wettenden aus, deren Tipp auf die Sieger­schnecke
+     * gesetzt war.
+     *
+     * <p>Zur Auszahlung wird die Sieger­schnecke via
+     * {@link Rennen#ermittleGewinnerSchnecke()} ermittelt. Anschließend werden
+     * alle Wetten durchlaufen und Treffer mit {@code Einsatz × faktor} ausgezahlt
+     * (Fehltipps werden als Verlust protokolliert).</p>
+     *
+     * @return Gesamtauszahlung (Summe über alle Gewinner-Wetten)
+     */
+    public double zahleGewinneAus() {
+        Rennschnecke sieger = rennen.ermittleGewinnerSchnecke();
+        if (sieger == null) {
+            System.out.println("Rennen wurde noch nicht durchgeführt – keine Auszahlung.");
+            return 0.0;
+        }
+        System.out.println("Sieger: " + sieger.name);
+
+        double gesamt = 0.0;
+        for (Wette w : Wetten) {
+            if (w.schnecke == sieger) {
+                double auszahlung = w.wettEinsatz * faktor;
+                gesamt += auszahlung;
+                System.out.printf("  + %s gewinnt %.2f (Einsatz %.2f)%n",
+                        w.spieler, auszahlung, w.wettEinsatz);
+            } else {
+                System.out.printf("  - %s verliert %.2f%n", w.spieler, w.wettEinsatz);
+            }
+        }
+        System.out.printf("Gesamtauszahlung: %.2f%n", gesamt);
+        return gesamt;
     }
 
     /** @return Übersicht über Rennen, Faktor und alle Wetten */
