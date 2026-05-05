@@ -18,15 +18,15 @@ public class Main {
         Rennschnecke Alfred  = new Rennschnecke("Alfred",  "Weinschnecke", 2.1);
         Rennschnecke Barbara = new Rennschnecke("Barbara", "Seeschnecke",  2.1);
 
-        // Rennen "Schillerrace" mit Streckenlänge 7 Einheiten
-        Rennen Schillerrace = new Rennen("Schillerrace", 7);
-        Schillerrace.addRennschnecke(Alfred);
-        Schillerrace.addRennschnecke(Barbara);
+        // Rennen "SchneckenGP" mit Streckenlänge 7 Einheiten
+        Rennen SchneckenGP = new Rennen("SchneckenGP", 7);
+        SchneckenGP.addRennschnecke(Alfred);
+        SchneckenGP.addRennschnecke(Barbara);
 
         // Rennen starten: läuft automatisch bis eine Schnecke die Ziellinie erreicht
-        Schillerrace.durchfuehren();
+        SchneckenGP.durchfuehren();
 
         // Sieger ausgeben
-        System.out.println("Sieger: " + Schillerrace.ermittleGewinner());
+        System.out.println("Sieger: " + SchneckenGP.ermittleGewinner());
     }
 }
